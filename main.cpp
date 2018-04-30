@@ -101,10 +101,9 @@ int main()
                     hit_edge = true;
                     break;
                 }
-                /*if(grid2[y][x]==4) {
-                    std::cout << "Path crossed itself!" << std::endl;
-                }*/
-                grid2[y][x]=4;
+                if(grid2[y][x]<4) { grid2[y][x]=4; }
+                else if(grid2[y][x]==4) { grid2[y][x]=5; }
+                else { std::cout << "Path crossed itself?" << std::endl; }
                 iterations++;
                 if(old_y==sy && y==sy-1)
                 {
