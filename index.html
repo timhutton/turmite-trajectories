@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<script>
+
+function init() {
+    X = 20;
+    Y = X;
+    grid = []
+    for(var y=0;y<Y;y++) {
+        grid[y]=[];
+        for(var x=0;x<X;x++) {
+            grid[y][x] = 0;
+        }
+    }
+    N_STATES = 4;
+    N_DIRS = 4;
+    sx = 10;
+    sy = 10;
+    tx = sx;
+    ty = sy;
+    tdir = 2;
+
+    canvas = document.getElementById('canvas');
+    ctx = canvas.getContext('2d');
+    scale = Math.min(canvas.width,canvas.height) / Math.max(X+2,Y);
+
+    canvas.addEventListener('click', onclick );
+    canvas.addEventListener('touchend', onclick );
+
+    draw();
+}
+
+function onclick(evt) {
+    var rect = canvas.getBoundingClientRect();
+    var root = document.documentElement;
+    var cx = Math.trunc( (evt.clientX - rect.left - root.scrollLeft) / scale );
+    var cy = Math.trunc( (evt.clientY - rect.top - root.scrollTop) / scale );
+    if(cx>=0 && cx<X && cy>=0 && cy<Y) {
+        grid[cy][cx] = (grid[cy][cx]+1)%N_STATES;
+    }
+    draw();
+}
+
+function onstep() {
+    step();
+    draw();
+}
+
+function step() {
+    var d_dir=[-1,-1,1,1]; // L,L,R,R
+    var dx = [0,1,0,-1];
+    var dy = [-1,0,1,0];
+    var state = grid[ty][tx];
+    tdir = (tdir+d_dir[state]+N_DIRS)%N_DIRS;
+    grid[ty][tx] = (state+1)%N_STATES;
+    tx += dx[tdir];
+    ty += dy[tdir];
+    if(tx<0||tx>=X||ty<0||ty>=Y) {
+        tx=sx;
+        ty=sy;
+        alert('Turmite left the grid!');
+    }
+}
+
+function draw() {
+    for(var y=0;y<Y;y++) {
+        for(var x=0;x<X;x++) {
+            draw_cell(x,y,grid[y][x]);
+        }
+    }
+    draw_turmite();
+    draw_state_legend();
+}
+
+function set_color_for_state(state) {
+    switch(state) {
+        case 0: ctx.fillStyle="rgb(255,255,255)"; break;
+        case 1: ctx.fillStyle="rgb(255,200,200)"; break;
+        case 2: ctx.fillStyle="rgb(200,255,200)"; break;
+        case 3: ctx.fillStyle="rgb(200,200,255)"; break;
+    }
+}
+
+function draw_cell(x,y,state) {
+    var is_hot = (state%2==1);
+    var is_left = state<2;
+    var is_v = ((x+y)%2==0);
+    
+    // background color is state of cell (white,red,green,blue)
+    set_color_for_state(state);
+    ctx.lineWidth = (x==sx&&y==sy)?3:1;
+    ctx.beginPath();
+    ctx.rect(x*scale,y*scale,scale,scale);
+    ctx.fill();
+    ctx.stroke();
+    // draw curves
+    ctx.lineWidth=1;
+    var r = scale / 2.0;
+    if( (is_v && is_left) || (!is_v && !is_left) ) {
+        // truchet tile with curves in bottom-left and top-right corners
+        ctx.beginPath();
+        ctx.arc(x*scale,(y+1)*scale,r,1.5*Math.PI,0);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc((x+1)*scale,y*scale,r,0.5*Math.PI,1.0*Math.PI);
+        ctx.stroke();
+    }
+    else {
+        // truchet tile with curves in bottom-right and top-left corners
+        ctx.beginPath();
+        ctx.arc((x+1)*scale,(y+1)*scale,r,1*Math.PI,1.5*Math.PI);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.arc(x*scale,y*scale,r,0*Math.PI,0.5*Math.PI);
+        ctx.stroke();
+    }
+    // draw diagonal (if cell is about to flip, 'hot')
+    ctx.beginPath();
+    if(is_hot) {
+        if( (is_v && !is_left) || (!is_v && is_left) ) {
+            // bottom-left to top-right
+            ctx.moveTo(x*scale,(y+1)*scale);
+            ctx.lineTo((x+1)*scale,y*scale);
+        }
+        else {
+            // bottom-right to top-left
+            ctx.moveTo((x+1)*scale,(y+1)*scale);
+            ctx.lineTo(x*scale,y*scale);
+        }
+    }
+    ctx.stroke();
+}
+
+function draw_turmite() {
+    ctx.strokeStyle = "rgb(0,0,0)";
+    ctx.fillStyle = "rgb(150,150,150)";
+    ctx.beginPath();
+    switch(tdir) {
+        case 0: // N
+            ctx.moveTo((tx+0.5)*scale,(ty+0.6)*scale);
+            ctx.lineTo((tx+0.1)*scale,(ty+0.9)*scale);
+            ctx.lineTo((tx+0.9)*scale,(ty+0.9)*scale);
+            ctx.lineTo((tx+0.5)*scale,(ty+0.6)*scale);
+            break;
+        case 1: // E
+            ctx.moveTo((tx+0.4)*scale,(ty+0.5)*scale);
+            ctx.lineTo((tx+0.1)*scale,(ty+0.1)*scale);
+            ctx.lineTo((tx+0.1)*scale,(ty+0.9)*scale);
+            ctx.lineTo((tx+0.4)*scale,(ty+0.5)*scale);
+            break;
+        case 2: // S
+            ctx.moveTo((tx+0.5)*scale,(ty+0.4)*scale);
+            ctx.lineTo((tx+0.1)*scale,(ty+0.1)*scale);
+            ctx.lineTo((tx+0.9)*scale,(ty+0.1)*scale);
+            ctx.lineTo((tx+0.5)*scale,(ty+0.4)*scale);
+            break;
+        case 3: // W
+            ctx.moveTo((tx+0.6)*scale,(ty+0.5)*scale);
+            ctx.lineTo((tx+0.9)*scale,(ty+0.1)*scale);
+            ctx.lineTo((tx+0.9)*scale,(ty+0.9)*scale);
+            ctx.lineTo((tx+0.6)*scale,(ty+0.5)*scale);
+            break;
+    }
+    ctx.fill();
+    ctx.stroke();
+}
+
+function draw_state_legend() {
+    // draw state legend
+    ctx.strokeStyle = "rgb(0,0,0)";
+    for(var s=0;s<N_STATES;s++) {
+        set_color_for_state(s);
+        ctx.beginPath();
+        ctx.rect((X+0.5)*scale,(0.5+1.5*s)*scale,scale,scale);
+        ctx.fill();
+        ctx.stroke();
+    }
+}
+
+window.onload = init;
+</script>
+
+<noscript>
+<p>For full functionality of this site it is necessary to enable JavaScript.
+Here are the <a href="http://www.enable-javascript.com/" target="_blank">
+instructions how to enable JavaScript in your web browser</a>.
+</p></noscript>
+
+</head>
+
+<body>
+
+<table border="0">
+<tr>
+<td><canvas id="canvas" width="800" height="800">(Canvas drawing not supported by your browser.)</canvas></td>
+<td><input type="button" value="step" onclick="onstep();" /></td>
+</tr>
+</table>
+
+</html>
