@@ -21,12 +21,15 @@ After that, add secondary hits (restricted to right of line from hit to start). 
 
 */
 
-void write_bmp_from_float(const std::string& filename, const uint64_t *g, const int w, const int h, const float gain);
+void write_bmp_from_uint64(const std::string& filename, const uint64_t *g, const int w, const int h, const float gain);
+
+bool inMoore(int x,int y,int tx,int ty) { return abs(x-tx)<=1 && abs(y-ty)<=1; }
+bool onGrid(int x,int y,int X,int Y) { return x>=0 && x<X && y>=0 && y<Y; }
 
 int main()
 {
-    const int X = 1000;
-    const int Y = 400;
+    const int X = 100;
+    const int Y = 40;
     uint64_t grid[Y][X] = {0};
     bool is_chain[Y][X] = {false};
     const int sx = X/2;
@@ -36,7 +39,7 @@ int main()
     const int N_DIRS = 4; // NESW
     const int dx[N_DIRS] = {0,1,0,-1};
     const int dy[N_DIRS] = {-1,0,1,0};
-    const int N_CHAIN_POINTS = 400;
+    const int N_CHAIN_POINTS = 100;
     int chain[N_CHAIN_POINTS][2];
     
     // initialize chain to be a half square
@@ -54,7 +57,8 @@ int main()
     
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-    std::uniform_int_distribution<> dis(0, N_DIRS-1);
+    std::uniform_int_distribution<> random_move(0, N_DIRS-1);
+    std::uniform_int_distribution<> random_chain_point(0, N_CHAIN_POINTS-1);
 
     auto t1 = std::chrono::high_resolution_clock::now();
     
@@ -62,9 +66,9 @@ int main()
     const uint64_t billion = 1000*million;
     const uint64_t trillion = 1000*billion;
     uint64_t iterations = 0;
-    for(; iterations<100*million; ++iterations)
+    for(; iterations<100*billion; ++iterations)
     {
-        int dir = dis(gen);
+        int dir = random_move(gen);
         x += dx[dir];
         y += dy[dir];
         if(y<0)
@@ -73,25 +77,57 @@ int main()
             y=sy;
         }
         else {
+            /*if (!onGrid(x, y, X, Y)) {
+                std::cerr << "Moved off grid:" << x << " " << y << std::endl;
+                exit(EXIT_FAILURE);
+            }*/
             if(is_chain[y][x]) {
                 grid[y][x]++;
                 x=sx;
                 y=sy;
             }
         }
+        
+        // tweak the chain every so often
+        if(iterations % million == 0) {
+            for(int j=0;j<N_CHAIN_POINTS/2;j++) {
+                int iChainPt = random_chain_point(gen);
+                int chain_mv = random_move(gen);
+                int old_cx = chain[iChainPt][0];
+                int old_cy = chain[iChainPt][1];
+                int new_cx = old_cx + dx[chain_mv];
+                int new_cy = old_cy + dy[chain_mv];
+                // move legal or not?
+                if( onGrid(new_cx,new_cy,X,Y) && new_cx!=sx && new_cy!=sy && !is_chain[new_cy][new_cx]
+                 && (iChainPt<=0 || inMoore(new_cx,new_cy,chain[iChainPt-1][0],chain[iChainPt-1][1]))
+                 && (iChainPt>=N_CHAIN_POINTS-1 || inMoore(new_cx,new_cy,chain[iChainPt+1][0],chain[iChainPt+1][1]))
+                 && (iChainPt>0 || (new_cy==old_cy && new_cx<sx))
+                 && (iChainPt<N_CHAIN_POINTS-1 || (new_cy==old_cy && new_cx>sx)) ) {
+                    // accept the move
+                    is_chain[old_cy][old_cx]=false;
+                    is_chain[new_cy][new_cx]=true;
+                    chain[iChainPt][0]=new_cx;
+                    chain[iChainPt][1]=new_cy;
+                }
+            }
+            memset(&grid[0][0],0,X*Y*sizeof(uint64_t));
+            x = sx;
+            y = sy;
+            //std::fill_n(&grid[0][0],X*Y,0);
+        }
     }
-    write_bmp_from_float("nplot.bmp",&grid[0][0],X,Y, 10.0f);
 
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << iterations << " steps took: "
               << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
               << " seconds\n";
               
+    write_bmp_from_uint64("nplot.bmp",&grid[0][0],X,Y, 100.0f);
 
     return EXIT_SUCCESS;
 }
 
-void write_bmp_from_float(const std::string& filename, const uint64_t *g, const int w, const int h, const float gain)
+void write_bmp_from_uint64(const std::string& filename, const uint64_t *g, const int w, const int h, const float gain)
 {
     // g[w*h] is row-major float values, where w is the image width, h is image height
     int filesize = 54 + 3*w*h;
