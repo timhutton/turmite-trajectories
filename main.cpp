@@ -13,12 +13,16 @@ Where do loops usually cross?
 */
 
 // STL:
+#include <algorithm>
 #include <chrono>
 #include <cstdlib>
 #include <fstream>
+#include <functional>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+
+const float PI=3.14159265358979f;
 
 void LLRR(uint8_t& state, int& dir, int& x, int& y)
 {
@@ -47,11 +51,31 @@ bool is_home(int x,int y,int sx,int sy,const uint8_t* g,int X,int Y)
     return true;
 }
 
+// do something along a Bresenham line
+void line(int x0, int y0, int x1, int y1, std::function<void(int,int)> func)
+{
+    const int dx = abs(x1-x0);
+    const int dy = abs(y1-y0);
+    const int sx = x0<x1 ? 1 : -1;
+    const int sy = y0<y1 ? 1 : -1; 
+    int err = (dx>dy ? dx : -dy)/2;
+    int e2;
+
+    while(true)
+    {
+        func(x0,y0);
+        if (x0==x1 && y0==y1) break;
+        e2 = err;
+        if (e2 >-dx) { err -= dy; x0 += sx; }
+        if (e2 < dy) { err += dx; y0 += sy; }
+    }
+}
+
 void write_bmp_from_byte(const std::string& filename, const uint8_t *g, const int w, const int h);
 
 int main()
 {
-    const int X = 900;
+    const int X = 8000;
     const int Y = X;
     uint8_t grid[Y][X] = {0};
     uint8_t grid2[Y][X] = {0};
@@ -61,15 +85,16 @@ int main()
     int x = sx;
     int y = sy;
     int dir = sdir;
-
-    auto t1 = std::chrono::high_resolution_clock::now();
     
     const uint64_t million = 1000000ul;
     const uint64_t billion = 1000*million;
     const uint64_t trillion = 1000*billion;
+
+    auto t1 = std::chrono::high_resolution_clock::now();
+    
     uint64_t iterations = 0;
     bool hit_edge = false;
-    for(; iterations<billion; ++iterations)
+    for(; iterations<trillion; ++iterations)
     {
         LLRR(grid[y][x], dir, x, y);
         if(x<0 || x>=X || y<0 || y>=Y)
@@ -81,8 +106,29 @@ int main()
     }
     write_bmp_from_byte("base.bmp",&grid[0][0],X,Y);
     
-    // draw some loops
-    if(!hit_edge)
+    // take measurements in polar coordinates?
+    const bool take_polar_measurements = true;
+    if(take_polar_measurements)
+    {
+        // every degree in [0,180]
+        for(float theta = 0.0f; theta <= 180.0f; theta += 1.0f) {
+            const float r = PI * theta / 180.0f;
+            const int ex = int(sx + 100*std::max(X,Y)*cos(r));
+            const int ey = int(sy + 100*std::max(X,Y)*sin(r));
+            bool found = false;
+            line( ex, ey, sx, sy, [&](int x,int y) {
+                if( !found && x>=0 && x<X && y>=0 && y<Y && grid[y][x] > 0 ) {
+                    printf("%f %f\n", theta, hypot(sx-x,sy-y) );
+                    found = true;
+                }
+            });
+        }
+        write_bmp_from_byte("base2.bmp",&grid[0][0],X,Y);
+    }
+    
+    // draw some loops?
+    const bool draw_some_loops = false;
+    if(draw_some_loops && !hit_edge)
     {
         int outLoop = 1;
         for(int iLoop=0;iLoop<1000000 && !hit_edge;iLoop++)

@@ -1,5 +1,7 @@
+cmake_minimum_required(VERSION 3.10)
 project(llrr)
 set(CMAKE_CXX_STACK_SIZE "200000000")
 add_executable(llrr main.cpp)
+set_property(TARGET llrr PROPERTY CXX_STANDARD 17)
 add_executable(walk_plot walk_plot.cpp)
 add_executable(chain_shape chain_shape.cpp)
