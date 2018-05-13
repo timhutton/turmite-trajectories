@@ -5,6 +5,7 @@
 // STL:
 #include <chrono>
 #include <cstdlib>
+#include <iostream>
 #include <random>
 
 // stdlib:
@@ -88,7 +89,7 @@ int main()
                 }
             }
         }
-        std::wcout << std::endl;
+        std::cout << std::endl;
         write_bmp_from_uint64("shape_test.bmp",&grid[0][0],X,Y, 1.0f);
     }
     
@@ -149,6 +150,13 @@ int main()
     std::cout << iterations << " steps took: "
               << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
               << " seconds\n";
+              
+    // draw the last state for debugging
+    write_bmp("shape_test_debug.bmp",X,Y,[&](int x,int y,char* bgr) {
+        if(chain_idx[y][x]>=0) { bgr[0]=bgr[1]=bgr[2]=(char)255; }
+        else if(path[y][x]) { bgr[0]=bgr[1]=bgr[2]=127; }
+        else { bgr[0]=bgr[1]=bgr[2]=0; }
+    });
     
     // output the impact counts to console
     for(uint64_t c : impacts) { printf("%" PRIu64 " ",c); }

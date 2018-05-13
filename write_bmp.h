@@ -1,8 +1,6 @@
 // STL:
 #include <fstream>
 #include <functional>
-#include <iomanip>
-#include <iostream>
 
 void write_bmp(const std::string& filename, const int w, const int h, std::function<void(int x,int y,char* bgr)> bgr_func)
 {
@@ -29,9 +27,9 @@ void write_bmp(const std::string& filename, const int w, const int h, std::funct
     output.write(bmpfileheader,14);
     output.write(bmpinfoheader,40);
     char bgr[3];
-    for(int y=0; y<h; y++)
+    for(int y = 0; y < h; y++)
     {
-        for(int x=0;x<w;x++)
+        for(int x = 0; x < w; x++)
         {
             bgr_func(x,y,bgr);
             output.write(bgr,3);

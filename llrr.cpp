@@ -21,6 +21,8 @@ Where do loops usually cross?
 #include <algorithm>
 #include <chrono>
 #include <cstdlib>
+#include <iomanip>
+#include <iostream>
 #include <sstream>
 
 const float PI=3.14159265358979f;
