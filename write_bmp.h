@@ -1,6 +1,7 @@
-// STL:
+// C++ Standard Library:
 #include <fstream>
 #include <functional>
+#include <string>
 
 void write_bmp(const std::string& filename, const int w, const int h, std::function<void(int x,int y,unsigned char bgr[3])> bgr_func)
 {

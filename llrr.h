@@ -1,3 +1,6 @@
+// C++ Standard Library:
+#include <cinttypes>
+
 void LLRR(uint8_t& state, int& dir, int& x, int& y)
 {
     const uint8_t N_STATES = 4;
@@ -10,4 +13,3 @@ void LLRR(uint8_t& state, int& dir, int& x, int& y)
     x += dx[dir];
     y += dy[dir];
 }
-

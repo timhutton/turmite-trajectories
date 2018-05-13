@@ -1,4 +1,4 @@
-// STL:
+// C++ Standard Library:
 #include <functional>
 
 // do something along a Bresenham line

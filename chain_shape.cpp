@@ -1,7 +1,8 @@
 // Local:
+#include "defs.h"
 #include "write_bmp.h"
 
-// STL:
+// C++ Standard Library:
 #include <chrono>
 #include <cstdlib>
 #include <iostream>
@@ -15,7 +16,7 @@ If hits the curved wall then accumulate there and start again.
 Jitter each block in the chain wall, biased to grow outwards where the value is higher than its neighbors,
 and inwards if less. Ends of chain are constrained to lie on first row.
 
-Should get half-nephroid shape. 
+Should get half-nephroid shape.
 
 After that, add secondary hits (restricted to right of line from hit to start). Get LLRR shape?
 
@@ -44,7 +45,7 @@ int main()
     uint64_t impacts[N_CHAIN_POINTS] = {0};
 
     for (int fy = 0; fy < Y; fy++) { for (int fx = 0; fx < X; fx++) is_chain[fy][fx] = -1; }
-    
+
     // initialize chain to be a half square
     int cx = sx - N_CHAIN_POINTS / 4;
     int cy = sy;
@@ -57,7 +58,7 @@ int main()
         else if(i>N_CHAIN_POINTS/4) { cx += 1; }
         else cy += 1;
     }
-    
+
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
     std::uniform_int_distribution<> random_move(0, N_DIRS - 1);
@@ -65,10 +66,7 @@ int main()
     std::uniform_int_distribution<> random_chain_point(0, N_CHAIN_POINTS-1);
 
     auto t1 = std::chrono::high_resolution_clock::now();
-    
-    const uint64_t million = 1000000ul;
-    const uint64_t billion = 1000*million;
-    const uint64_t trillion = 1000*billion;
+
     uint64_t iterations = 0;
     for(; iterations<billion; ++iterations)
     {
@@ -92,10 +90,10 @@ int main()
                 y=sy;
             }
         }
-        
+
         // tweak the chain every so often
         if(iterations>0 && (iterations % 10000 == 0)) {
-            //for(int j=0;j<N_CHAIN_POINTS/2;j++) 
+            //for(int j=0;j<N_CHAIN_POINTS/2;j++)
             {
                 int iChainPt = random_chain_point(gen);
                 int chain_mv = random_move8(gen);

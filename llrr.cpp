@@ -13,19 +13,18 @@ Where do loops usually cross?
 */
 
 // Local:
+#include "defs.h"
 #include "line.h"
 #include "llrr.h"
 #include "write_bmp.h"
 
-// STL:
+// C++ Standard Library:
 #include <algorithm>
 #include <chrono>
 #include <cstdlib>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
-
-const float PI=3.14159265358979f;
 
 bool is_home(int x,int y,int sx,int sy,const uint8_t* g,int X,int Y)
 {
@@ -55,15 +54,11 @@ int main()
     int x = sx;
     int y = sy;
     int dir = sdir;
-    
-    const uint64_t million = 1000000ul;
-    const uint64_t billion = 1000*million;
-    const uint64_t trillion = 1000*billion;
 
     auto t1 = std::chrono::high_resolution_clock::now();
-    
+
     //grid[sy-1][sx-1]=1; // initial perturbation
-    
+
     uint64_t iterations = 0;
     bool hit_edge = false;
     for(; iterations<billion; ++iterations)
@@ -77,7 +72,7 @@ int main()
         }
     }
     write_bmp_from_byte("base.bmp",&grid[0][0],X,Y);
-    
+
     // take measurements in polar coordinates?
     const bool take_polar_measurements = false;
     if(take_polar_measurements)
@@ -95,7 +90,7 @@ int main()
             });
         }
     }
-    
+
     // draw some loops?
     const bool draw_some_loops = false;
     if(draw_some_loops && !hit_edge)
@@ -145,7 +140,7 @@ int main()
     std::cout << iterations << " steps took: "
               << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
               << " seconds\n";
-              
+
 
     return EXIT_SUCCESS;
 }
