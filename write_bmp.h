@@ -2,7 +2,7 @@
 #include <fstream>
 #include <functional>
 
-void write_bmp(const std::string& filename, const int w, const int h, std::function<void(int x,int y,char* bgr)> bgr_func)
+void write_bmp(const std::string& filename, const int w, const int h, std::function<void(int x,int y,char bgr[3])> bgr_func)
 {
     int filesize = 54 + 3*w*h;
     char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};

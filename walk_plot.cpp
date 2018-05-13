@@ -73,7 +73,7 @@ int main()
 
 void write_bmp_from_float(const std::string& filename, const float *g, const int w, const int h)
 {
-    write_bmp(filename,w,h,[&](int x,int y,char* bgr) {
+    write_bmp(filename,w,h,[&](int x,int y,char bgr[3]) {
         float val = g[(h-y-1)*w+x] / 10.0f;
         uint8_t c = val>255.0f ? 255 : ( val < 0.0f ? 0 : static_cast<uint8_t>(val) );
         bgr[0]=c; bgr[1]=c; bgr[2]=c;

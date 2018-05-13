@@ -62,7 +62,7 @@ int main()
 
     auto t1 = std::chrono::high_resolution_clock::now();
     
-    grid[sy-1][sx-1]=1; // initial perturbation
+    //grid[sy-1][sx-1]=1; // initial perturbation
     
     uint64_t iterations = 0;
     bool hit_edge = false;
@@ -152,7 +152,7 @@ int main()
 
 void write_bmp_from_byte(const std::string& filename, const uint8_t *g, const int w, const int h)
 {
-    write_bmp(filename,w,h,[&](int x,int y, char* bgr) {
+    write_bmp(filename,w,h,[&](int x,int y, char bgr[3]) {
         switch(g[(h-y-1)*w+x]) {
             default:
             case 0: bgr[0]=0;         bgr[1]=0;         bgr[2]=0;   break;

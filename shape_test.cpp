@@ -167,7 +167,7 @@ int main()
 
 void write_bmp_from_uint64(const std::string& filename, const uint64_t *g, const int w, const int h, const float gain)
 {
-    write_bmp(filename,w,h,[&](int x,int y,char* bgr) {
+    write_bmp(filename,w,h,[&](int x,int y,char bgr[3]) {
         float val = g[(h-y-1)*w+x] * gain;
         uint8_t c = val>255.0f ? 255 : ( val < 0.0f ? 0 : static_cast<uint8_t>(val) );
         bgr[0]=c; bgr[1]=c; bgr[2]=c;
