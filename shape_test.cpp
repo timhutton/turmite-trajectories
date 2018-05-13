@@ -1,14 +1,11 @@
 // Local:
 #include "line.h"
+#include "write_bmp.h"
 
 // STL:
 #include <chrono>
 #include <cstdlib>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
 #include <random>
-#include <sstream>
 
 // stdlib:
 #include <inttypes.h>
@@ -162,39 +159,9 @@ int main()
 
 void write_bmp_from_uint64(const std::string& filename, const uint64_t *g, const int w, const int h, const float gain)
 {
-    // g[w*h] is row-major float values, where w is the image width, h is image height
-    int filesize = 54 + 3*w*h;
-    char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
-    char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
-    char bmppad[3] = {0,0,0};
-
-    bmpfileheader[ 2] = (unsigned char)(filesize    );
-    bmpfileheader[ 3] = (unsigned char)(filesize>> 8);
-    bmpfileheader[ 4] = (unsigned char)(filesize>>16);
-    bmpfileheader[ 5] = (unsigned char)(filesize>>24);
-
-    bmpinfoheader[ 4] = (unsigned char)(       w    );
-    bmpinfoheader[ 5] = (unsigned char)(       w>> 8);
-    bmpinfoheader[ 6] = (unsigned char)(       w>>16);
-    bmpinfoheader[ 7] = (unsigned char)(       w>>24);
-    bmpinfoheader[ 8] = (unsigned char)(       h    );
-    bmpinfoheader[ 9] = (unsigned char)(       h>> 8);
-    bmpinfoheader[10] = (unsigned char)(       h>>16);
-    bmpinfoheader[11] = (unsigned char)(       h>>24);
-
-    std::fstream output(filename, std::ios::out | std::ios::binary);
-    output.write(bmpfileheader,14);
-    output.write(bmpinfoheader,40);
-    uint8_t bgr[3];
-    for(int i=0; i<h; i++)
-    {
-        for(int j=0;j<w;j++)
-        {
-            float val = g[(h-i-1)*w+j] * gain;
-            uint8_t c = val>255.0f ? 255 : ( val < 0.0f ? 0 : static_cast<uint8_t>(val) );
-            bgr[0]=c; bgr[1]=c; bgr[2]=c;
-            output.write(reinterpret_cast<char*>(bgr),3);
-        }
-        output.write(bmppad,(4-(w*3)%4)%4);
-    }
+    write_bmp(filename,w,h,[&](int x,int y,char* bgr) {
+        float val = g[(h-y-1)*w+x] * gain;
+        uint8_t c = val>255.0f ? 255 : ( val < 0.0f ? 0 : static_cast<uint8_t>(val) );
+        bgr[0]=c; bgr[1]=c; bgr[2]=c;
+    });
 }

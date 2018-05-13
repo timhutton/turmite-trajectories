@@ -14,30 +14,16 @@ Where do loops usually cross?
 
 // Local:
 #include "line.h"
+#include "llrr.h"
+#include "write_bmp.h"
 
 // STL:
 #include <algorithm>
 #include <chrono>
 #include <cstdlib>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
 #include <sstream>
 
 const float PI=3.14159265358979f;
-
-void LLRR(uint8_t& state, int& dir, int& x, int& y)
-{
-    const uint8_t N_STATES = 4;
-    const int N_DIRS = 4;
-    const int d_dir[N_STATES] = {-1,-1,1,1}; // LLRR
-    const int dx[N_DIRS]={0,1,0,-1};
-    const int dy[N_DIRS]={-1,0,1,0};
-    dir = (dir+d_dir[state]+N_DIRS) % N_DIRS;
-    state = (state+1) % N_STATES;
-    x += dx[dir];
-    y += dy[dir];
-}
 
 bool is_home(int x,int y,int sx,int sy,const uint8_t* g,int X,int Y)
 {
@@ -57,7 +43,7 @@ void write_bmp_from_byte(const std::string& filename, const uint8_t *g, const in
 
 int main()
 {
-    const int X = 2000;
+    const int X = 900;
     const int Y = X;
     uint8_t grid[Y][X] = {0};
     uint8_t grid2[Y][X] = {0};
@@ -78,7 +64,7 @@ int main()
     
     uint64_t iterations = 0;
     bool hit_edge = false;
-    for(; iterations<10*billion; ++iterations)
+    for(; iterations<billion; ++iterations)
     {
         LLRR(grid[y][x], dir, x, y);
         if(x<0 || x>=X || y<0 || y>=Y)
@@ -91,7 +77,7 @@ int main()
     write_bmp_from_byte("base.bmp",&grid[0][0],X,Y);
     
     // take measurements in polar coordinates?
-    const bool take_polar_measurements = true;
+    const bool take_polar_measurements = false;
     if(take_polar_measurements)
     {
         for(size_t theta = 0; theta < 360; theta++) {
@@ -164,45 +150,15 @@ int main()
 
 void write_bmp_from_byte(const std::string& filename, const uint8_t *g, const int w, const int h)
 {
-    // g[w*h] is row-major indexed color values, where w is the image width, h is image height
-    int filesize = 54 + 3*w*h;
-    char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
-    char bmpinfoheader[40] = {40,0,0,0, 0,0,0,0, 0,0,0,0, 1,0, 24,0};
-    char bmppad[3] = {0,0,0};
-
-    bmpfileheader[ 2] = (unsigned char)(filesize    );
-    bmpfileheader[ 3] = (unsigned char)(filesize>> 8);
-    bmpfileheader[ 4] = (unsigned char)(filesize>>16);
-    bmpfileheader[ 5] = (unsigned char)(filesize>>24);
-
-    bmpinfoheader[ 4] = (unsigned char)(       w    );
-    bmpinfoheader[ 5] = (unsigned char)(       w>> 8);
-    bmpinfoheader[ 6] = (unsigned char)(       w>>16);
-    bmpinfoheader[ 7] = (unsigned char)(       w>>24);
-    bmpinfoheader[ 8] = (unsigned char)(       h    );
-    bmpinfoheader[ 9] = (unsigned char)(       h>> 8);
-    bmpinfoheader[10] = (unsigned char)(       h>>16);
-    bmpinfoheader[11] = (unsigned char)(       h>>24);
-
-    std::fstream output(filename, std::ios::out | std::ios::binary);
-    output.write(bmpfileheader,14);
-    output.write(bmpinfoheader,40);
-    char bgr[3];
-    for(int i=0; i<h; i++)
-    {
-        for(int j=0;j<w;j++)
-        {
-            // TODO: allow user of function to change colormap, currently: [0,1,2,3]->[black,blue,green,red]
-            switch(g[(h-i-1)*w+j]) {
-                default:
-                case 0: bgr[0]=0;         bgr[1]=0;         bgr[2]=0;   break;
-                case 1: bgr[0]=(char)200; bgr[1]=0;         bgr[2]=0;   break;
-                case 2: bgr[0]=0;         bgr[1]=(char)200; bgr[2]=0;   break;
-                case 3: bgr[0]=0;         bgr[1]=0;         bgr[2]=(char)200; break;
-                case 4: bgr[0]=(char)255; bgr[1]=(char)255; bgr[2]=(char)255; break;
-            }
-            output.write(bgr,3);
+    write_bmp(filename,w,h,[&](int x,int y, char* bgr) {
+        switch(g[(h-y-1)*w+x]) {
+            default:
+            case 0: bgr[0]=0;         bgr[1]=0;         bgr[2]=0;   break;
+            case 1: bgr[0]=(char)200; bgr[1]=0;         bgr[2]=0;   break;
+            case 2: bgr[0]=0;         bgr[1]=(char)200; bgr[2]=0;   break;
+            case 3: bgr[0]=0;         bgr[1]=0;         bgr[2]=(char)200; break;
+            case 4: bgr[0]=(char)255; bgr[1]=(char)255; bgr[2]=(char)255; break;
         }
-        output.write(bmppad,(4-(w*3)%4)%4);
-    }
+        return bgr;
+    });
 }
