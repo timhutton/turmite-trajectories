@@ -2,7 +2,7 @@
 #include <fstream>
 #include <functional>
 
-void write_bmp(const std::string& filename, const int w, const int h, std::function<void(int x,int y,char bgr[3])> bgr_func)
+void write_bmp(const std::string& filename, const int w, const int h, std::function<void(int x,int y,unsigned char bgr[3])> bgr_func)
 {
     int filesize = 54 + 3*w*h;
     char bmpfileheader[14] = {'B','M', 0,0,0,0, 0,0, 0,0, 54,0,0,0};
@@ -26,13 +26,13 @@ void write_bmp(const std::string& filename, const int w, const int h, std::funct
     std::fstream output(filename, std::ios::out | std::ios::binary);
     output.write(bmpfileheader,14);
     output.write(bmpinfoheader,40);
-    char bgr[3];
+    unsigned char bgr[3];
     for(int y = h-1; y >= 0; y--)
     {
         for(int x = 0; x < w; x++)
         {
             bgr_func(x,y,bgr);
-            output.write(bgr,3);
+            output.write(reinterpret_cast<char*>(bgr),3);
         }
         output.write(bmppad,(4-(w*3)%4)%4);
     }

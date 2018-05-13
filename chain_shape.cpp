@@ -21,8 +21,6 @@ After that, add secondary hits (restricted to right of line from hit to start). 
 
 */
 
-void write_bmp_from_uint64(const std::string& filename, const uint64_t *g, const int w, const int h, const float gain);
-
 bool inMoore(int x,int y,int tx,int ty) { return abs(x-tx)<=1 && abs(y-ty)<=1; }
 bool onGrid(int x,int y,int X,int Y) { return x>=0 && x<X && y>=0 && y<Y; }
 int dist2(int x,int y,int sx,int sy) { return (x-sx)*(x-sx)+(y-sy)*(y-sy); }
@@ -138,24 +136,15 @@ int main()
               << " seconds\n";
 
     // draw the chain onto the image
-    uint64_t grid[Y][X] = {0};
+    uint8_t grid[Y][X] = {0};
     grid[sy][sx] = 255;
-    //grid[sy+1][sx] = 255;
     for(int iChain=0;iChain<N_CHAIN_POINTS;iChain++) {
         grid[chain[iChain][1]][chain[iChain][0]] = 255;
         std::cout << impacts[iChain] << " ";
     }
-    std::wcout << std::endl;
-    write_bmp_from_uint64("chain_shape.bmp",&grid[0][0],X,Y, 1.0f);
+    write_bmp("chain_shape.bmp",X,Y,[&](int x,int y,unsigned char bgr[3]) {
+        bgr[0]=bgr[1]=bgr[2]=grid[y][x];
+    });
 
     return EXIT_SUCCESS;
-}
-
-void write_bmp_from_uint64(const std::string& filename, const uint64_t *g, const int w, const int h, const float gain)
-{
-    write_bmp(filename,w,h,[&](int x,int y,char bgr[3]) {
-        float val = g[y*w+x] * gain;
-        uint8_t c = val>255.0f ? 255 : ( val < 0.0f ? 0 : static_cast<uint8_t>(val) );
-        bgr[0]=c; bgr[1]=c; bgr[2]=c;
-    });
 }

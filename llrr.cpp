@@ -152,14 +152,14 @@ int main()
 
 void write_bmp_from_byte(const std::string& filename, const uint8_t *g, const int w, const int h)
 {
-    write_bmp(filename,w,h,[&](int x,int y, char bgr[3]) {
+    write_bmp(filename,w,h,[&](int x,int y,unsigned char bgr[3]) {
         switch(g[y*w+x]) {
             default:
-            case 0: bgr[0]=0;         bgr[1]=0;         bgr[2]=0;   break;
-            case 1: bgr[0]=(char)200; bgr[1]=0;         bgr[2]=0;   break;
-            case 2: bgr[0]=0;         bgr[1]=(char)200; bgr[2]=0;   break;
-            case 3: bgr[0]=0;         bgr[1]=0;         bgr[2]=(char)200; break;
-            case 4: bgr[0]=(char)255; bgr[1]=(char)255; bgr[2]=(char)255; break;
+            case 0: bgr[0]=0;   bgr[1]=0;   bgr[2]=0;   break;
+            case 1: bgr[0]=200; bgr[1]=0;   bgr[2]=0;   break;
+            case 2: bgr[0]=0;   bgr[1]=200; bgr[2]=0;   break;
+            case 3: bgr[0]=0;   bgr[1]=0;   bgr[2]=200; break;
+            case 4: bgr[0]=255; bgr[1]=255; bgr[2]=255; break;
         }
         return bgr;
     });

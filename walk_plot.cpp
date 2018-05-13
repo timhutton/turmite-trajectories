@@ -14,8 +14,6 @@ If exceeds N steps since last started then start again.
 
 */
 
-void write_bmp_from_float(const std::string& filename, const float *g, const int w, const int h);
-
 int main()
 {
     const int X = 1000;
@@ -60,7 +58,11 @@ int main()
             n_steps++;
         }
     }
-    write_bmp_from_float("nplot.bmp",&grid[0][0],X,Y);
+    write_bmp("walk_plot.bmp",X,Y,[&](int x,int y,unsigned char bgr[3]) {
+        float val = grid[y][x] / 10.0f;
+        uint8_t c = val>255.0f ? 255 : ( val < 0.0f ? 0 : static_cast<uint8_t>(val) );
+        bgr[0]=bgr[1]=bgr[2]=c;
+    });
 
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << iterations << " steps took: "
@@ -69,13 +71,4 @@ int main()
               
 
     return EXIT_SUCCESS;
-}
-
-void write_bmp_from_float(const std::string& filename, const float *g, const int w, const int h)
-{
-    write_bmp(filename,w,h,[&](int x,int y,char bgr[3]) {
-        float val = g[y*w+x] / 10.0f;
-        uint8_t c = val>255.0f ? 255 : ( val < 0.0f ? 0 : static_cast<uint8_t>(val) );
-        bgr[0]=c; bgr[1]=c; bgr[2]=c;
-    });
 }
