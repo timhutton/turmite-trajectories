@@ -153,7 +153,7 @@ int main()
 void write_bmp_from_byte(const std::string& filename, const uint8_t *g, const int w, const int h)
 {
     write_bmp(filename,w,h,[&](int x,int y, char bgr[3]) {
-        switch(g[(h-y-1)*w+x]) {
+        switch(g[y*w+x]) {
             default:
             case 0: bgr[0]=0;         bgr[1]=0;         bgr[2]=0;   break;
             case 1: bgr[0]=(char)200; bgr[1]=0;         bgr[2]=0;   break;

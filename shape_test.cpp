@@ -105,16 +105,16 @@ int main()
     uint64_t iterations = 0;
     for(; iterations<10*million; ++iterations)
     {
+        bool stuck = ( path[y-1][x] || chain_idx[y-1][x]>=0 )
+                  && ( path[y+1][x] || chain_idx[y+1][x]>=0 )
+                  && ( path[y][x-1] || chain_idx[y][x-1]>=0 )
+                  && ( path[y][x+1] || chain_idx[y][x+1]>=0 );
         int dir = random_move(gen);
         int new_x = x + dx[dir];
         int new_y = y + dy[dir];
-        bool stuck = ( new_y>0 && ( path[new_y-1][new_x] || chain_idx[new_y-1][new_x]>=0 ) )
-            && ( path[new_y+1][new_x] || chain_idx[new_y+1][new_x]>=0 )
-            && ( path[new_y][new_x-1] || chain_idx[new_y][new_x-1]>=0 )
-            && ( path[new_y][new_x+1] || chain_idx[new_y][new_x+1]>=0 );
         if(new_y<0 || stuck)
         {
-            // cross the axis, start afresh
+            // start afresh
             x = sx;
             y = sy;
             // clear the path
@@ -137,6 +137,11 @@ int main()
         if( iChain >= 0) {
             // make a note of the impact but don't take the step
             impacts[iChain]++;
+            
+            // DEBUG:
+            x = new_x;
+            y = new_y;
+            break;
         }
         else {
             // take the step
@@ -168,7 +173,7 @@ int main()
 void write_bmp_from_uint64(const std::string& filename, const uint64_t *g, const int w, const int h, const float gain)
 {
     write_bmp(filename,w,h,[&](int x,int y,char bgr[3]) {
-        float val = g[(h-y-1)*w+x] * gain;
+        float val = g[y*w+x] * gain;
         uint8_t c = val>255.0f ? 255 : ( val < 0.0f ? 0 : static_cast<uint8_t>(val) );
         bgr[0]=c; bgr[1]=c; bgr[2]=c;
     });
