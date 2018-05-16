@@ -30,8 +30,8 @@ int dist2(int x,int y,int sx,int sy) { return (x-sx)*(x-sx)+(y-sy)*(y-sy); }
 
 int main()
 {
-    const int X = 100;
-    const int Y = 60;
+    const int X = 1000;
+    const int Y = 600;
     int chain_idx[Y][X];
     const int sx = X/2;
     const int sy = 0;
@@ -59,9 +59,11 @@ int main()
     {
         const double rad = theta * PI / 180.0;
         //const double r = X/3 * measured_llrr_radial[theta];
-        const double r = X/4 * measured_random_walk_radial[theta];
+        //const double r = X/4 * measured_random_walk_radial[theta];
+        //const double r = X/4; // semi-circle
+        const double r = X/4 * (1+(measured_random_walk_radial[theta]-1)/3); // reduced version of the measured walk_plot
         int bx = std::clamp((int)round(sx + r * cos(rad)),0,X-1);
-        int by = std::clamp((int)round(sy + r * sin(rad)),0,Y-1);
+        int by = std::clamp((int)(1.2*round(sy + r * sin(rad))),0,Y-1);
         if(theta>0) {
             line(ax, ay, bx, by, [&](int x,int y) {
                 if(chain_idx[y][x]==-1) {
@@ -87,7 +89,7 @@ int main()
     auto t1 = std::chrono::high_resolution_clock::now();
 
     uint64_t iterations = 0;
-    for(; iterations<billion; ++iterations)
+    for(; iterations<10*billion; ++iterations)
     {
         int dir = random_move(gen);
         int new_x = x + dx[dir];
@@ -99,11 +101,11 @@ int main()
             y = sy;
             continue;
         }
-        if (!onGrid(new_x, new_y, X, Y)) // DEBUG
+        /*if (!onGrid(new_x, new_y, X, Y)) // DEBUG
         {
             std::cerr << "Moved off grid" << std::endl;
             exit(EXIT_FAILURE);
-        }
+        }*/
         int iChain = chain_idx[new_y][new_x];
         if( iChain >= 0) {
             // make a note of the impact and start afresh
