@@ -8,8 +8,10 @@
 #include <chrono>
 #include <cstdlib>
 #include <cinttypes>
+#include <iomanip>
 #include <iostream>
 #include <random>
+#include <sstream>
 
 /*
 
@@ -43,107 +45,152 @@ int main()
     const int dx8[8] = { 0,1,1,1,0,-1,-1,-1 };
     const int dy8[8] = { -1,-1,0,1,1,1,0,-1 };
 
-    std::vector<float> impacts;
+    struct Impact { int x, y; double n; };
+    std::vector<Impact> impacts;
 
-    // clear the arrays
-    for (int fy = 0; fy < Y; fy++) {
-        for (int fx = 0; fx < X; fx++) {
-            chain_idx[fy][fx] = -1;
-        }
-    }
-
-    // initialize chain
-    int ax = 0;
-    int ay = 0;
-    for(int theta=0;theta<=180;theta++)
-    {
-        const double rad = theta * PI / 180.0;
-        //const double r = X/3 * measured_llrr_radial[theta];
-        const double r = X/4 * measured_random_walk_radial[theta];
-        //const double r = X/4; // semi-circle
-        int bx = std::clamp((int)round(sx + r * cos(rad)),0,X-1);
-        int by = std::clamp((int)round(sy + r * sin(rad)),0,Y-1);
-        if(theta>0) {
-            line(ax, ay, bx, by, [&](int x,int y) {
-                if(chain_idx[y][x]==-1) {
-                    chain_idx[y][x] = (int)impacts.size();
-                    impacts.push_back(0.0f);
-                }
-            });
-        }
-        ax = bx;
-        ay = by;
-    }
-
-    // draw the chain for debugging
-    write_bmp("shape_test_chain.bmp",X,Y,[&](int x,int y,unsigned char bgr[3]) {
-        if( chain_idx[y][x] > -1 ) { bgr[0]=bgr[1]=bgr[2]=255; }
-        else { bgr[0]=bgr[1]=bgr[2]=0; }
-    });
+    std::vector<double> radial(std::begin(measured_random_walk_radial), std::end(measured_random_walk_radial));
 
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
     std::uniform_int_distribution<> random_move(0, N_DIRS - 1);
 
-    auto t1 = std::chrono::high_resolution_clock::now();
-
-    uint64_t num_impacts = 0;
-    uint64_t iterations = 0;
-    for(; iterations<10*billion && num_impacts < 10*impacts.size(); ++iterations)
+    for (int iAdjustment = 0; ; iAdjustment++)
     {
-        int dir = random_move(gen);
-        int new_x = x + dx[dir];
-        int new_y = y + dy[dir];
-        if(new_y<0)
-        {
-            // start afresh
-            x = sx;
-            y = sy;
-            continue;
-        }
-        /*if (!onGrid(new_x, new_y, X, Y)) // DEBUG
-        {
-            std::cerr << "Moved off grid" << std::endl;
-            exit(EXIT_FAILURE);
-        }*/
-        int iChain = chain_idx[new_y][new_x];
-        if( iChain >= 0) {
-            // make a note of the impact and start afresh
-            impacts[iChain]++;
-            num_impacts++;
-            x = sx;
-            y = sy;
-            continue;
-        }
-        else {
-            // take the step
-            x = new_x;
-            y = new_y;
-        }
-    }
-    
-    // smooth the impacts arrays
-    {
-        for (size_t i = 0; i < 1000; i++) {
-            std::vector<float> impacts2(impacts);
-            for (size_t j = 0; j < impacts.size(); j++) {
-                float sum = impacts2[j];
-                int n = 1;
-                if (j > 0) { sum += impacts2[j - 1]; n++; }
-                if (j < impacts.size() - 1) { sum += impacts2[j + 1]; n++; }
-                impacts[j] = sum / n;
+        // initialize chain from radial
+        for (int fy = 0; fy < Y; fy++) {
+            for (int fx = 0; fx < X; fx++) {
+                chain_idx[fy][fx] = -1;
             }
         }
+        int ax = 0;
+        int ay = 0;
+        impacts.clear();
+        for (int theta = 0; theta <= 180; theta++)
+        {
+            const double rad = theta * PI / 180.0;
+            const double r = X / 4 * radial[theta];
+            int bx = std::clamp((int)round(sx + r * cos(rad)), 0, X - 1);
+            int by = std::clamp((int)round(sy + r * sin(rad)), 0, Y - 1);
+            if (theta > 0) {
+                line(ax, ay, bx, by, [&](int x, int y) {
+                    if (chain_idx[y][x] == -1) {
+                        chain_idx[y][x] = (int)impacts.size();
+                        impacts.push_back(Impact({ x, y, 0 }) );
+                    }
+                });
+            }
+            ax = bx;
+            ay = by;
+        }
+
+        // draw the chain for debugging
+        std::ostringstream oss;
+        oss << "shape_test_chain_" << std::setfill('0') << std::setw(4) << iAdjustment << ".bmp";
+        write_bmp(oss.str(), X, Y, [&](int x, int y, unsigned char bgr[3]) {
+            if (chain_idx[y][x] > -1) { bgr[0] = bgr[1] = bgr[2] = 255; }
+            else { bgr[0] = bgr[1] = bgr[2] = 0; }
+        });
+        
+        if(iAdjustment==20) break;
+
+        auto t1 = std::chrono::high_resolution_clock::now();
+
+        uint64_t num_impacts = 0;
+        uint64_t iterations = 0;
+        const uint64_t expected_impacts = 50;
+        for (; iterations < 100 * billion && num_impacts < expected_impacts * impacts.size(); ++iterations)
+        {
+            int dir = random_move(gen);
+            int new_x = x + dx[dir];
+            int new_y = y + dy[dir];
+            if (new_y < 0)
+            {
+                // start afresh
+                x = sx;
+                y = sy;
+                continue;
+            }
+            /*if (!onGrid(new_x, new_y, X, Y)) // DEBUG
+            {
+                std::cerr << "Moved off grid" << std::endl;
+                exit(EXIT_FAILURE);
+            }*/
+            int iChain = chain_idx[new_y][new_x];
+            if (iChain >= 0) {
+                // make a note of the impact and start afresh
+                impacts[iChain].n++;
+                num_impacts++;
+                x = sx;
+                y = sy;
+                continue;
+            }
+            else {
+                // take the step
+                x = new_x;
+                y = new_y;
+            }
+        }
+
+        // output the impact counts to console
+        printf("\nAfter %d adjustments:\n",iAdjustment);
+        for(const Impact& i : impacts) { printf("%f ",i.n); }
+        printf("\n\n");
+
+        // smooth the impacts arrays
+        {
+            for (size_t i = 0; i < 1000; i++) {
+                std::vector<Impact> impacts2(impacts);
+                for (size_t j = 0; j < impacts.size(); j++) {
+                    double sum = impacts2[j].n;
+                    int n = 1;
+                    if (j > 0) { sum += impacts2[j - 1].n; n++; }
+                    if (j < impacts.size() - 1) { sum += impacts2[j + 1].n; n++; }
+                    impacts[j].n = sum / n;
+                }
+            }
+        }
+
+        // output the impact counts to console
+        printf("\nSmoothed:\n");
+        for(const Impact& i : impacts) { printf("%f ",i.n); }
+        printf("\n\n");
+
+        // adjust the radial profile by the impacts
+        {
+            struct Acc { int n; double val; };
+            std::vector<Acc> acc;
+            for (int theta = 0; theta <= 180; theta++)
+            {
+                acc.push_back( Acc({0,0}) );
+            }
+            for(const Impact& i : impacts) {
+                const double theta = 180.0 * atan2(i.y-sy,i.x-sx) / PI;
+                const int itheta = (int)round(theta);
+                acc[itheta].val += i.n;
+                acc[itheta].n++;
+                // make symmetrical
+                acc[180-itheta].val += i.n;
+                acc[180-itheta].n++;
+            }
+            for(int theta=0;theta<=180;theta++)
+            {
+                if (acc[theta].n == 0) { printf("No impacts at degree %d!\n", theta); exit(EXIT_FAILURE); }
+                const double impacts_here = acc[theta].val / acc[theta].n;
+                const double delta_r = ( 0.1 * ( impacts_here - expected_impacts ) ) / expected_impacts; // more impacts -> move outwards
+                radial[theta] += delta_r;
+            }
+        }
+
+        auto t2 = std::chrono::high_resolution_clock::now();
+        std::cout << iterations << " steps took: "
+            << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
+            << " seconds\n";
     }
 
-    auto t2 = std::chrono::high_resolution_clock::now();
-    std::cout << iterations << " steps took: "
-              << std::chrono::duration_cast<std::chrono::seconds>(t2 - t1).count()
-              << " seconds\n";
-
-    // output the impact counts to console
-    for(float c : impacts) { printf("%f ",c); }
-    printf("\n");
+    // output the final radial profile to console
+    printf("\nFinal radial profile:\n");
+    for(double r : radial) { printf("%f ",r); }
+    printf("\n\n");
 
     return EXIT_SUCCESS;
 }

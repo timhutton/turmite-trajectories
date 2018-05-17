@@ -7,5 +7,4 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_executable(llrr        src/llrr.cpp)
 add_executable(walk_plot   src/walk_plot.cpp)
-add_executable(chain_shape src/chain_shape.cpp)
 add_executable(shape_test  src/shape_test.cpp)
