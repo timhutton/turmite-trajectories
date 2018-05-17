@@ -43,7 +43,7 @@ int main()
     const int dx8[8] = { 0,1,1,1,0,-1,-1,-1 };
     const int dy8[8] = { -1,-1,0,1,1,1,0,-1 };
 
-    std::vector<uint64_t> impacts;
+    std::vector<float> impacts;
 
     // clear the arrays
     for (int fy = 0; fy < Y; fy++) {
@@ -59,16 +59,15 @@ int main()
     {
         const double rad = theta * PI / 180.0;
         //const double r = X/3 * measured_llrr_radial[theta];
-        //const double r = X/4 * measured_random_walk_radial[theta];
+        const double r = X/4 * measured_random_walk_radial[theta];
         //const double r = X/4; // semi-circle
-        const double r = X/4 * (1+(measured_random_walk_radial[theta]-1)/3); // reduced version of the measured walk_plot
         int bx = std::clamp((int)round(sx + r * cos(rad)),0,X-1);
-        int by = std::clamp((int)(1.2*round(sy + r * sin(rad))),0,Y-1);
+        int by = std::clamp((int)round(sy + r * sin(rad)),0,Y-1);
         if(theta>0) {
             line(ax, ay, bx, by, [&](int x,int y) {
                 if(chain_idx[y][x]==-1) {
                     chain_idx[y][x] = (int)impacts.size();
-                    impacts.push_back(0);
+                    impacts.push_back(0.0f);
                 }
             });
         }
@@ -88,8 +87,9 @@ int main()
 
     auto t1 = std::chrono::high_resolution_clock::now();
 
+    uint64_t num_impacts = 0;
     uint64_t iterations = 0;
-    for(; iterations<10*billion; ++iterations)
+    for(; iterations<10*billion && num_impacts < 10*impacts.size(); ++iterations)
     {
         int dir = random_move(gen);
         int new_x = x + dx[dir];
@@ -110,6 +110,7 @@ int main()
         if( iChain >= 0) {
             // make a note of the impact and start afresh
             impacts[iChain]++;
+            num_impacts++;
             x = sx;
             y = sy;
             continue;
@@ -120,6 +121,20 @@ int main()
             y = new_y;
         }
     }
+    
+    // smooth the impacts arrays
+    {
+        for (size_t i = 0; i < 1000; i++) {
+            std::vector<float> impacts2(impacts);
+            for (size_t j = 0; j < impacts.size(); j++) {
+                float sum = impacts2[j];
+                int n = 1;
+                if (j > 0) { sum += impacts2[j - 1]; n++; }
+                if (j < impacts.size() - 1) { sum += impacts2[j + 1]; n++; }
+                impacts[j] = sum / n;
+            }
+        }
+    }
 
     auto t2 = std::chrono::high_resolution_clock::now();
     std::cout << iterations << " steps took: "
@@ -127,7 +142,7 @@ int main()
               << " seconds\n";
 
     // output the impact counts to console
-    for(uint64_t c : impacts) { printf("%" PRIu64 " ",c); }
+    for(float c : impacts) { printf("%f ",c); }
     printf("\n");
 
     return EXIT_SUCCESS;
