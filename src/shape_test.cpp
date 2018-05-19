@@ -110,6 +110,7 @@ int main()
         auto t1 = std::chrono::high_resolution_clock::now();
 
         int iChain_last_impact = (int)impacts.size();
+        int iChain_first_impact = (int)impacts.size();
 
         uint64_t num_impacts = 0;
         uint64_t iterations = 0;
@@ -127,12 +128,12 @@ int main()
                 x = sx;
                 y = sy;
                 if(for_cardioid) {
-                    iChain_last_impact = (int)impacts.size();
+                    iChain_first_impact = iChain_last_impact = (int)impacts.size();
                 }
                 continue;
             }
-            if(iChain_last_impact < impacts.size() && onLeft(new_x,new_y,sx,sy,impacts[iChain_last_impact].x,impacts[iChain_last_impact].y)) {
-                // hit the line joining the previous impact and the origin
+            if(iChain_first_impact < impacts.size() && onLeft(new_x,new_y,sx,sy,impacts[iChain_first_impact].x,impacts[iChain_first_impact].y)) {
+                // hit the line joining the first impact and the origin
                 // ignore this move and continue
                 continue;
             }
@@ -150,6 +151,9 @@ int main()
                 if(for_cardioid) {
                     // record the new impact point and continue from here without taking the step
                     iChain_last_impact = iChain;
+                    if(iChain_first_impact == (int)impacts.size()) {
+                        iChain_first_impact = iChain;
+                    }
                 }
                 else {
                     // start afresh
@@ -163,7 +167,6 @@ int main()
                 x = new_x;
                 y = new_y;
             }
-
         }
 
         // output the impact counts to console
