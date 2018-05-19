@@ -105,7 +105,7 @@ int main()
         });
         std::cout << "Wrote " << oss.str() << std::endl;
         
-        if(iAdjustment==20) break;
+        if(iAdjustment==100) break;
 
         auto t1 = std::chrono::high_resolution_clock::now();
 
@@ -129,6 +129,11 @@ int main()
                 if(for_cardioid) {
                     iChain_last_impact = (int)impacts.size();
                 }
+                continue;
+            }
+            if(iChain_last_impact < impacts.size() && onLeft(new_x,new_y,sx,sy,impacts[iChain_last_impact].x,impacts[iChain_last_impact].y)) {
+                // hit the line joining the previous impact and the origin
+                // ignore this move and continue
                 continue;
             }
             int iChain = chain_idx[new_y][new_x];
