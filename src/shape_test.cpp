@@ -26,7 +26,7 @@ const double measured_llrr_radial[181]={1,1.003365683,1.005434206,1.00684812,1.0
 
 const double measured_random_walk_radial[181]={1,1.144048402,1.268977768,1.355015768,1.432079075,1.479793297,1.525271588,1.55423251,1.590896719,1.621708065,1.646383837,1.665225882,1.684681529,1.704469732,1.721676977,1.736309592,1.751267846,1.763710444,1.773660405,1.783414891,1.795142355,1.806374321,1.817120841,1.827360284,1.837069607,1.846248419,1.854926749,1.863155028,1.870983719,1.8784446,1.885544142,1.892272931,1.898626711,1.904627791,1.910333845,1.915826199,1.921180375,1.926432496,1.931559426,1.936484456,1.941107072,1.945342758,1.949154752,1.952565721,1.95564876,1.958506293,1.961247901,1.963974198,1.966767708,1.969687425,1.972763357,1.975990278,1.979323837,1.982684182,1.985970443,1.989084244,1.991954765,1.994555668,1.996907219,1.999063529,2.001091019,2.00304664,2.00496284,2.006842666,2.008665074,2.010398128,2.012015691,2.013511741,2.01490642,2.016240882,2.017562999,2.018910548,2.020299579,2.021722418,2.023154431,2.024564661,2.025925092,2.027215994,2.028428037,2.029563148,2.030634848,2.0316667,2.032686713,2.033717252,2.034763229,2.035803707,2.036791401,2.037661037,2.038343268,2.038778766,2.038928444,2.038778766,2.038343268,2.037661037,2.036791401,2.035803707,2.034763229,2.033717252,2.032686713,2.0316667,2.030634848,2.029563148,2.028428037,2.027215994,2.025925092,2.024564661,2.023154431,2.021722418,2.020299579,2.018910548,2.017562999,2.016240882,2.01490642,2.013511741,2.012015691,2.010398128,2.008665074,2.006842666,2.00496284,2.00304664,2.001091019,1.999063529,1.996907219,1.994555668,1.991954765,1.989084244,1.985970443,1.982684182,1.979323837,1.975990278,1.972763357,1.969687425,1.966767708,1.963974198,1.961247901,1.958506293,1.95564876,1.952565721,1.949154752,1.945342758,1.941107072,1.936484456,1.931559426,1.926432496,1.921180375,1.915826199,1.910333845,1.904627791,1.898626711,1.892272931,1.885544142,1.8784446,1.870983719,1.863155028,1.854926749,1.846248419,1.837069607,1.827360284,1.817120841,1.806374321,1.795142355,1.783414891,1.773660405,1.763710444,1.751267846,1.736309592,1.721676977,1.704469732,1.684681529,1.665225882,1.646383837,1.621708065,1.590896719,1.55423251,1.525271588,1.479793297,1.432079075,1.355015768,1.268977768,1.144048402,1}; // [0,180] degrees, measured using walk_plot.cpp
 
-const double optimized_radial_profile1[181]={1,1.075423344,1.110599951,1.13879642,1.175639258,1.196309108,1.221170434,1.233878803,1.255903248,1.274497898,1.289924386,1.302626503,1.318157465,1.335859172,1.351390134,1.366296036,1.381972547,1.396733792,1.409830591,1.423223847,1.439075375,1.453947345,1.467958517,1.481976833,1.495579931,1.509580388,1.523291532,1.537320563,1.550919196,1.5645973,1.577309241,1.590647134,1.603721609,1.616879128,1.62982234,1.642508385,1.654829216,1.666949134,1.678384166,1.690630882,1.703138338,1.714934119,1.727776428,1.740197269,1.751924293,1.764263875,1.776540952,1.788223329,1.799013655,1.810955878,1.822506099,1.834267947,1.845944966,1.857026392,1.867414001,1.876454158,1.883758434,1.889725081,1.894261232,1.897559765,1.900299315,1.902202177,1.904300593,1.906129341,1.907890225,1.909904705,1.911585224,1.913171984,1.914408711,1.915498995,1.916141021,1.917995664,1.918701982,1.919918171,1.920936126,1.921696914,1.922105882,1.92258182,1.923045258,1.92368907,1.924352527,1.924946334,1.925668725,1.925958039,1.926575956,1.926481304,1.926494698,1.926508985,1.926490233,1.926451836,1.926490233,1.926451836,1.926490233,1.926508985,1.926494698,1.926481304,1.926575956,1.925958039,1.925668725,1.924946334,1.924352527,1.92368907,1.923045258,1.92258182,1.922105882,1.921696914,1.920936126,1.919918171,1.918701982,1.917995664,1.916141021,1.915498995,1.914408711,1.913171984,1.911585224,1.909904705,1.907890225,1.906129341,1.904300593,1.902202177,1.900299315,1.897559765,1.894261232,1.889725081,1.883758434,1.876454158,1.867414001,1.857026392,1.845944966,1.834267947,1.822506099,1.810955878,1.799013655,1.788223329,1.776540952,1.764263875,1.751924293,1.740197269,1.727776428,1.714934119,1.703138338,1.690630882,1.678384166,1.666949134,1.654829216,1.642508385,1.62982234,1.616879128,1.603721609,1.590647134,1.577309241,1.5645973,1.550919196,1.537320563,1.523291532,1.509580388,1.495579931,1.481976833,1.467958517,1.453947345,1.439075375,1.423223847,1.409830591,1.396733792,1.381972547,1.366296036,1.351390134,1.335859172,1.318157465,1.302626503,1.289924386,1.274497898,1.255903248,1.233878803,1.221170434,1.196309108,1.175639258,1.13879642,1.110599951,1.075423344,1}; // [0,180] degrees, output of this program for single impact model
+const double optimized_single_impact_profile[181]={1,1.075423344,1.110599951,1.13879642,1.175639258,1.196309108,1.221170434,1.233878803,1.255903248,1.274497898,1.289924386,1.302626503,1.318157465,1.335859172,1.351390134,1.366296036,1.381972547,1.396733792,1.409830591,1.423223847,1.439075375,1.453947345,1.467958517,1.481976833,1.495579931,1.509580388,1.523291532,1.537320563,1.550919196,1.5645973,1.577309241,1.590647134,1.603721609,1.616879128,1.62982234,1.642508385,1.654829216,1.666949134,1.678384166,1.690630882,1.703138338,1.714934119,1.727776428,1.740197269,1.751924293,1.764263875,1.776540952,1.788223329,1.799013655,1.810955878,1.822506099,1.834267947,1.845944966,1.857026392,1.867414001,1.876454158,1.883758434,1.889725081,1.894261232,1.897559765,1.900299315,1.902202177,1.904300593,1.906129341,1.907890225,1.909904705,1.911585224,1.913171984,1.914408711,1.915498995,1.916141021,1.917995664,1.918701982,1.919918171,1.920936126,1.921696914,1.922105882,1.92258182,1.923045258,1.92368907,1.924352527,1.924946334,1.925668725,1.925958039,1.926575956,1.926481304,1.926494698,1.926508985,1.926490233,1.926451836,1.926490233,1.926451836,1.926490233,1.926508985,1.926494698,1.926481304,1.926575956,1.925958039,1.925668725,1.924946334,1.924352527,1.92368907,1.923045258,1.92258182,1.922105882,1.921696914,1.920936126,1.919918171,1.918701982,1.917995664,1.916141021,1.915498995,1.914408711,1.913171984,1.911585224,1.909904705,1.907890225,1.906129341,1.904300593,1.902202177,1.900299315,1.897559765,1.894261232,1.889725081,1.883758434,1.876454158,1.867414001,1.857026392,1.845944966,1.834267947,1.822506099,1.810955878,1.799013655,1.788223329,1.776540952,1.764263875,1.751924293,1.740197269,1.727776428,1.714934119,1.703138338,1.690630882,1.678384166,1.666949134,1.654829216,1.642508385,1.62982234,1.616879128,1.603721609,1.590647134,1.577309241,1.5645973,1.550919196,1.537320563,1.523291532,1.509580388,1.495579931,1.481976833,1.467958517,1.453947345,1.439075375,1.423223847,1.409830591,1.396733792,1.381972547,1.366296036,1.351390134,1.335859172,1.318157465,1.302626503,1.289924386,1.274497898,1.255903248,1.233878803,1.221170434,1.196309108,1.175639258,1.13879642,1.110599951,1.075423344,1}; // [0,180] degrees, output of this program for single impact model
 
 bool inMoore(int x,int y,int tx,int ty) { return abs(x-tx)<=1 && abs(y-ty)<=1; }
 bool onGrid(int x,int y,int X,int Y) { return x>=0 && x<X && y>=0 && y<Y; }
@@ -57,18 +57,18 @@ int main()
     const int dx8[8] = { 0,1,1,1,0,-1,-1,-1 };
     const int dy8[8] = { -1,-1,0,1,1,1,0,-1 };
 
-    struct Impact { int x, y; double n; };
-    std::vector<Impact> impacts;
+    struct BoundaryPixel { int x, y; double impacts; };
+    std::vector<BoundaryPixel> boundary_pixels;
 
-    std::vector<double> radial;
-    //radial.assign(std::begin(measured_llrr_radial), std::end(measured_llrr_radial));
-    radial.assign(181,1.0f);
+    //std::vector<double> radial(181,1.0f);
+    //std::vector<double> radial(std::begin(measured_llrr_radial), std::end(measured_llrr_radial));
+    std::vector<double> radial(std::begin(optimized_single_impact_profile), std::end(optimized_single_impact_profile));
 
     std::random_device rd;  //Will be used to obtain a seed for the random number engine
     std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
     std::uniform_int_distribution<> random_move(0, N_DIRS - 1);
     
-    const bool for_cardioid = false;
+    const bool for_cardioid = true;
     for (int iAdjustment = 0; ; iAdjustment++)
     {
         // initialize chain from radial
@@ -79,18 +79,18 @@ int main()
         }
         int ax = 0;
         int ay = 0;
-        impacts.clear();
+        boundary_pixels.clear();
         for (int theta = 0; theta <= 180; theta++)
         {
             const double rad = theta * PI / 180.0;
-            const double r = X / 4 * radial[theta];
-            int bx = std::clamp((int)round(sx + r * cos(rad)), 0, X - 1);
-            int by = std::clamp((int)round(sy + r * sin(rad)), 0, Y - 1);
+            const double r = X / 6 * radial[theta];
+            const int bx = std::clamp((int)round(sx + r * cos(rad)), 0, X - 1);
+            const int by = std::clamp((int)round(sy + r * sin(rad)), 0, Y - 1);
             if (theta > 0) {
                 line(ax, ay, bx, by, [&](int x, int y) {
                     if (chain_idx[y][x] == -1) {
-                        chain_idx[y][x] = (int)impacts.size();
-                        impacts.push_back(Impact({ x, y, 0 }) );
+                        chain_idx[y][x] = (int)boundary_pixels.size();
+                        boundary_pixels.push_back(BoundaryPixel({ x, y, 0 }) );
                     }
                 });
             }
@@ -111,15 +111,15 @@ int main()
 
         auto t1 = std::chrono::high_resolution_clock::now();
 
-        int iChain_last_impact = (int)impacts.size();
-        int iChain_first_impact = (int)impacts.size();
+        int iChain_last_impact = (int)boundary_pixels.size();
+        int iChain_first_impact = (int)boundary_pixels.size();
 
         uint64_t num_impacts = 0;
         uint64_t iterations = 0;
         const uint64_t expected_impacts = 100;
         x = sx;
         y = sy;
-        for (; iterations < 10*billion && num_impacts < expected_impacts * impacts.size(); ++iterations)
+        for (; iterations < 100*billion && num_impacts < expected_impacts * boundary_pixels.size(); ++iterations)
         {
             int dir = random_move(gen);
             int new_x = x + dx[dir];
@@ -130,11 +130,11 @@ int main()
                 x = sx;
                 y = sy;
                 if(for_cardioid) {
-                    iChain_first_impact = iChain_last_impact = (int)impacts.size();
+                    iChain_first_impact = iChain_last_impact = (int)boundary_pixels.size();
                 }
                 continue;
             }
-            if(iChain_first_impact < impacts.size() && onLeft(new_x,new_y,sx,sy,impacts[iChain_first_impact].x,impacts[iChain_first_impact].y)) {
+            if(iChain_first_impact < boundary_pixels.size() && onLeft(new_x,new_y,sx,sy,boundary_pixels[iChain_first_impact].x,boundary_pixels[iChain_first_impact].y)) {
                 // hit the line joining the first impact and the origin
                 // ignore this move and continue
                 continue;
@@ -147,13 +147,13 @@ int main()
                     continue;
                 }
                 // make a note of the impact
-                impacts[iChain].n++;
+                boundary_pixels[iChain].impacts++;
                 num_impacts++;
                 
                 if(for_cardioid) {
                     // record the new impact point and continue from here without taking the step
                     iChain_last_impact = iChain;
-                    if(iChain_first_impact == (int)impacts.size()) {
+                    if(iChain_first_impact == (int)boundary_pixels.size()) {
                         iChain_first_impact = iChain;
                     }
                 }
@@ -173,40 +173,37 @@ int main()
 
         // output the impact counts to console
         printf("\nAfter %d adjustments:\n",iAdjustment);
-        for(const Impact& i : impacts) { printf("%f ",i.n); }
+        for(const BoundaryPixel& i : boundary_pixels) { printf("%f ",i.impacts); }
         printf("\n\n");
 
         // smooth the impacts arrays
         {
-            for (size_t i = 0; i < 1000; i++) {
-                std::vector<Impact> impacts2(impacts);
-                for (size_t j = 0; j < impacts.size(); j++) {
-                    double sum = impacts2[j].n;
+            for (size_t i = 0; i < 100; i++) {
+                std::vector<BoundaryPixel> boundary_pixels2(boundary_pixels);
+                for (size_t j = 0; j < boundary_pixels.size(); j++) {
+                    double sum = boundary_pixels2[j].impacts;
                     int n = 1;
-                    if (j > 0) { sum += impacts2[j - 1].n; n++; }
-                    if (j < impacts.size() - 1) { sum += impacts2[j + 1].n; n++; }
-                    impacts[j].n = sum / n;
+                    if (j > 0) { sum += boundary_pixels2[j - 1].impacts; n++; }
+                    if (j < boundary_pixels.size() - 1) { sum += boundary_pixels2[j + 1].impacts; n++; }
+                    boundary_pixels[j].impacts = sum / n;
                 }
             }
         }
 
         // output the impact counts to console
         printf("\nSmoothed:\n");
-        for(const Impact& i : impacts) { printf("%f ",i.n); }
+        for(const BoundaryPixel& i : boundary_pixels) { printf("%f ",i.impacts); }
         printf("\n\n");
 
         // adjust the radial profile by the impacts
         {
             struct Acc { int n; double val; };
-            std::vector<Acc> acc;
-            for (int theta = 0; theta <= 180; theta++)
-            {
-                acc.push_back( Acc({0,0}) );
-            }
-            for(const Impact& i : impacts) {
+            std::vector<Acc> acc(181,Acc({0,0}));
+            for(const BoundaryPixel& i : boundary_pixels) {
                 const double theta = 180.0 * atan2(i.y-sy,i.x-sx) / PI;
                 const int itheta = (int)round(theta);
-                acc[itheta].val += i.n;
+                if(itheta<0 || itheta>180) { printf("Theta out of range: %d\n",itheta); exit(EXIT_FAILURE); }
+                acc[itheta].val += i.impacts;
                 acc[itheta].n++;
             }
             for(int theta=0;theta<=180;theta++)
