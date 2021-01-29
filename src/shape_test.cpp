@@ -111,15 +111,16 @@ int main()
 
         auto t1 = std::chrono::high_resolution_clock::now();
 
-        int iChain_last_impact = (int)boundary_pixels.size();
-        int iChain_first_impact = (int)boundary_pixels.size();
+        struct ForbiddenZone { int x1,y1,x2,y2,iBoundaryPixel; }; // to the right of this line
+        std::vector<ForbiddenZone> forbidden_zones;
 
         uint64_t num_impacts = 0;
         uint64_t iterations = 0;
+        const uint64_t iteration_limit = billion;
         const uint64_t expected_impacts = 100;
         x = sx;
         y = sy;
-        for (; iterations < 100*billion && num_impacts < expected_impacts * boundary_pixels.size(); ++iterations)
+        for (; iterations < iteration_limit && num_impacts < expected_impacts * boundary_pixels.size(); ++iterations)
         {
             int dir = random_move(gen);
             int new_x = x + dx[dir];
@@ -130,18 +131,24 @@ int main()
                 x = sx;
                 y = sy;
                 if(for_cardioid) {
-                    iChain_first_impact = iChain_last_impact = (int)boundary_pixels.size();
+                    forbidden_zones.clear();
                 }
                 continue;
             }
-            if(iChain_first_impact < boundary_pixels.size() && onLeft(new_x,new_y,sx,sy,boundary_pixels[iChain_first_impact].x,boundary_pixels[iChain_first_impact].y)) {
-                // hit the line joining the first impact and the origin
+            bool entering_forbidden_zone = false;
+            for(const ForbiddenZone& fz : forbidden_zones) {
+                if(onLeft(new_x,new_y,fz.x1,fz.y1,fz.x2,fz.y2)) {
+                    entering_forbidden_zone = true;
+                    break;
+                }
+            }
+            if(entering_forbidden_zone) {
                 // ignore this move and continue
                 continue;
             }
             int iChain = chain_idx[new_y][new_x];
             if (iChain >= 0) {
-                if(iChain>=iChain_last_impact) {
+                if(!forbidden_zones.empty() && iChain>=forbidden_zones.back().iBoundaryPixel) {
                     // hit the curved wall to the left of a previous impact,
                     // ignore this move and continue
                     continue;
@@ -152,9 +159,17 @@ int main()
                 
                 if(for_cardioid) {
                     // record the new impact point and continue from here without taking the step
-                    iChain_last_impact = iChain;
-                    if(iChain_first_impact == (int)boundary_pixels.size()) {
-                        iChain_first_impact = iChain;
+                    if(forbidden_zones.empty()) {
+                        // new forbidden zone between the origin and this point
+                        forbidden_zones.push_back( ForbiddenZone( {sx,sy,new_x,new_y,iChain} ) );
+                    }
+                    else {
+                        const ForbiddenZone& fz = forbidden_zones.back();
+                        //if(hypot(new_x-fz.x2,new_y-fz.y2)>5.0f) 
+                        {
+                            // new forbidden zone between this impact point and the last
+                            forbidden_zones.push_back( ForbiddenZone( {fz.x2,fz.y2,new_x,new_y,iChain} ) );
+                        }
                     }
                 }
                 else {
@@ -170,6 +185,26 @@ int main()
                 y = new_y;
             }
         }
+        if(iterations >= iteration_limit) {
+            write_bmp("stuck_debug.bmp", X, Y, [&](int x, int y, unsigned char bgr[3]) {
+                if( (x==sx && y==sy) || (chain_idx[y][x] > -1) ) { bgr[0] = bgr[1] = bgr[2] = 255; return; }
+                for(const ForbiddenZone& fz : forbidden_zones) {
+                    if(onLeft(x,y,fz.x1,fz.y1,fz.x2,fz.y2)) {
+                        if (x == 500 && y == 0) {
+                            printf("Error: origin blocked by forbidden zone");
+                        }
+                        bgr[0]=bgr[1]=0; bgr[2]=127; 
+                        return;
+                    }
+                }                    
+                bgr[0] = bgr[1] = bgr[2] = 0;
+            });
+            std::cout << "Iteration limit reached. Stuck? Wrote stuck_debug.bmp\n";
+            for(const ForbiddenZone& fz : forbidden_zones) {
+                std::cout << fz.iBoundaryPixel << " : " << fz.x1 << "," << fz.y1 << " " << fz.x2 << "," << fz.y2 << "\n";
+            }            
+            exit(EXIT_FAILURE);
+        }
 
         // output the impact counts to console
         printf("\nAfter %d adjustments:\n",iAdjustment);
@@ -178,7 +213,7 @@ int main()
 
         // smooth the impacts arrays
         {
-            for (size_t i = 0; i < 100; i++) {
+            for (size_t i = 0; i < 1000; i++) {
                 std::vector<BoundaryPixel> boundary_pixels2(boundary_pixels);
                 for (size_t j = 0; j < boundary_pixels.size(); j++) {
                     double sum = boundary_pixels2[j].impacts;
